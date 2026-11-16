@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Integrated Help in One Minute</title>
+<style>
+/* One-minute version of the Integrated Help walkthrough: five steps, the same live prototype. Arrow keys or click to move. Tokens follow the Trintech (AI Surge) design system. */
+:root {
+  --bg: #eef2f7;
+  --surface: #ffffff;
+  --raised: #f8fafc;
+  --fg: #0f172a;
+  --fg2: #334155;
+  --fg3: #5b6b82;
+  --line: #e2e8f0;
+  --line-strong: #cbd5e1;
+  --primary: #0652dd;
+  --primary-soft: #e8f0fd;
+  --on-primary: #ffffff;
+  --ai-from: #5f00c9;
+  --ai-to: #0652dd;
+  --ai-ink: #4f1fd6;
+  --ai-soft: #f3efff;
+  --warn-ink: #7a5300;
+  --warn-soft: #fff4d1;
+  --ok-ink: #2f6b00;
+  --ok-soft: #e9f8d2;
+  --practice: #0e7c86;
+  --on-practice: #ffffff;
+  --shade: rgba(15, 23, 42, 0.48);
+  --font: "Aptos", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0a101c; --surface: #121a2a; --raised: #172133; --fg: #e6ebf3; --fg2: #c3cddb; --fg3: #8d9bb1;
+    --line: #232f44; --line-strong: #33425c; --primary: #7aa7ff; --primary-soft: #16264a; --on-primary: #0a101c;
+    --ai-from: #b48cff; --ai-to: #7aa7ff; --ai-ink: #b9a3ff; --ai-soft: #1d1838;
+    --warn-ink: #f2cf72; --warn-soft: #3a2e08; --ok-ink: #a9dc6a; --ok-soft: #1c2a0c;
+    --practice: #4fd1db; --on-practice: #04191b; --shade: rgba(0, 0, 0, 0.6); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0a101c; --surface: #121a2a; --raised: #172133; --fg: #e6ebf3; --fg2: #c3cddb; --fg3: #8d9bb1;
+  --line: #232f44; --line-strong: #33425c; --primary: #7aa7ff; --primary-soft: #16264a; --on-primary: #0a101c;
+  --ai-from: #b48cff; --ai-to: #7aa7ff; --ai-ink: #b9a3ff; --ai-soft: #1d1838;
+  --warn-ink: #f2cf72; --warn-soft: #3a2e08; --ok-ink: #a9dc6a; --ok-soft: #1c2a0c;
+  --practice: #4fd1db; --on-practice: #04191b; --shade: rgba(0, 0, 0, 0.6); color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { overflow-x: hidden; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 15px; line-height: 1.5; margin: 0; min-height: 100vh; display: grid; grid-template-rows: auto 1fr auto; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+/* Deck */
+.top { max-width: 1180px; width: 100%; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 26px 14px; display: grid; gap: 6px; }
+.top h1 { margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.01em; text-wrap: balance; }
+.top p { margin: 0; font-size: 17px; color: var(--fg2); max-width: 760px; text-wrap: pretty; }
+.top.quiet { visibility: hidden; height: 0; padding-block: 0; overflow: hidden; }
+.stage { max-width: 1180px; width: 100%; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); min-width: 0; align-self: start; }
+.nav { max-width: 1180px; width: 100%; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 14px 22px; display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--fg3); }
+.nav button { border: 1px solid var(--line-strong); background: var(--surface); border-radius: 8px; padding: 6px 12px; font-size: 13px; font-weight: 600; }
+.nav button:disabled { opacity: 0.4; cursor: default; }
+.nav .dots { display: flex; gap: 5px; margin-left: 6px; }
+.nav .dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--line-strong); }
+.nav .dots i.on { background: var(--fg); }
+.nav .hint { margin-left: auto; }
+
+/* Text slides */
+.text { display: grid; gap: 14px; max-width: 760px; padding-block: 56px 10px; }
+.text h2 { margin: 0; font-size: 40px; line-height: 1.15; font-weight: 700; letter-spacing: -0.015em; text-wrap: balance; }
+.text p { margin: 0; font-size: 20px; line-height: 1.5; color: var(--fg2); text-wrap: pretty; }
+.text ol { margin: 6px 0 0; padding-left: 22px; display: grid; gap: 12px; font-size: 18px; line-height: 1.5; }
+.text ol b { color: var(--fg); font-weight: 600; }
+.text ol span { color: var(--fg2); }
+.shot { display: grid; gap: 12px; }
+.shot img { width: 100%; max-width: 1100px; border-radius: 12px; border: 1px solid var(--line); box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 18px 48px -18px rgba(15, 23, 42, 0.22); }
+.shot p { margin: 0; font-size: 13px; color: var(--fg3); }
+
+/* Frame */
+.frame { position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 18px 48px -18px rgba(15, 23, 42, 0.22); min-width: 0; }
+.grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 400px); position: relative; }
+.work { padding: 24px 24px 28px; display: grid; gap: 16px; align-content: start; position: relative; min-width: 0; }
+.panel { border-left: 1px solid var(--line); background: var(--raised); padding: 20px 22px 22px; display: grid; gap: 4px; align-content: start; position: relative; z-index: 3; min-width: 0; }
+.panel-title { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--ai-ink); margin-bottom: 6px; }
+.sparkle { width: 14px; height: 14px; flex: none; }
+.sparkle path { fill: url(#ai-grad); }
+#ai-grad .from { stop-color: var(--ai-from); }
+#ai-grad .to { stop-color: var(--ai-to); }
+
+.ex-head { display: flex; align-items: center; gap: 8px 14px; flex-wrap: wrap; }
+.ex-head h2 { margin: 0; font-size: 22px; font-weight: 700; }
+.facts { display: flex; gap: 4px 16px; flex-wrap: wrap; font-size: 13px; color: var(--fg3); }
+.facts strong { color: var(--fg); font-weight: 600; }
+.pill { font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 999px; background: var(--warn-soft); color: var(--warn-ink); border: 0; }
+.steps { display: flex; gap: 8px; align-items: center; font-size: 13px; color: var(--fg3); flex-wrap: wrap; }
+.steps > span { display: inline-flex; align-items: center; gap: 6px; }
+.steps .dot { width: 18px; height: 18px; border-radius: 50%; display: inline-grid; place-items: center; font-size: 11px; font-weight: 700; border: 1.5px solid var(--line-strong); color: var(--fg3); }
+.steps .done .dot { background: var(--ok-soft); border-color: var(--ok-ink); color: var(--ok-ink); }
+.steps .now { color: var(--fg); font-weight: 600; }
+.steps .now .dot { border-color: var(--primary); color: var(--primary); }
+.steps .sep { width: 18px; height: 1px; background: var(--line-strong); }
+.row-btns { display: flex; justify-content: flex-end; align-items: center; gap: 14px; position: relative; flex-wrap: wrap; }
+.btn { border: 0; border-radius: 8px; padding: 8px 18px; font-size: 14px; font-weight: 600; background: var(--primary); color: var(--on-primary); }
+.btn:disabled { opacity: 0.4; cursor: default; }
+.btn.quiet { background: var(--surface); color: var(--fg); border: 1px solid var(--line-strong); }
+
+.term { cursor: help; text-decoration: underline dotted; text-decoration-color: color-mix(in srgb, currentColor 45%, transparent); text-underline-offset: 3px; }
+.term:hover { text-decoration-color: var(--ai-ink); }
+.certify-wrap { position: relative; display: inline-block; cursor: help; }
+.certify-wrap .btn { pointer-events: none; }
+.scene.practice .certify-wrap { cursor: default; }
+.scene.practice .certify-wrap .btn { pointer-events: auto; }
+
+.recon { display: grid; gap: 14px; min-width: 0; }
+.kv { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; font-size: 14px; }
+.kv span { color: var(--fg3); }
+.kv strong { font-variant-numeric: tabular-nums; font-weight: 600; text-align: right; }
+.kv .diff { color: var(--warn-ink); }
+.kv .zero { color: var(--ok-ink); }
+.items { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; min-width: 0; }
+.item { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px 12px; align-items: center; padding: 10px 14px; border-top: 1px solid var(--line); font-size: 14px; position: relative; }
+.item:first-child { border-top: 0; }
+.item .amt { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.item .how { font-size: 12px; color: var(--fg3); border: 1px solid var(--line-strong); border-radius: 6px; padding: 2px 8px; background: none; white-space: nowrap; }
+.item.explained .how { color: var(--ok-ink); border-color: var(--ok-ink); background: var(--ok-soft); font-weight: 600; }
+
+.qa { border-top: 1px solid var(--line); min-width: 0; }
+.qa:first-of-type { border-top: 0; }
+.qh { width: 100%; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 11px 0; background: none; border: 0; text-align: left; font-size: 14px; font-weight: 600; color: var(--fg2); }
+.qh::after { content: ""; flex: none; width: 8px; height: 8px; margin-top: 6px; margin-right: 3px; border-right: 1.5px solid var(--fg3); border-bottom: 1.5px solid var(--fg3); transform: rotate(45deg); transition: transform 0.2s; }
+.qh[aria-expanded="true"] { color: var(--fg); }
+.qh[aria-expanded="true"]::after { transform: rotate(-135deg); margin-top: 9px; }
+.qb { display: grid; gap: 10px; padding: 0 0 16px; }
+.qa.lit { animation: lit 1.8s ease-out; border-radius: 8px; }
+@keyframes lit { 0%, 35% { background: var(--ai-soft); box-shadow: 0 0 0 10px var(--ai-soft); } 100% { background: transparent; box-shadow: 0 0 0 10px transparent; } }
+@media (prefers-reduced-motion: reduce) { .qa.lit { animation: none; background: var(--ai-soft); box-shadow: 0 0 0 10px var(--ai-soft); } }
+.a { margin: 0; font-size: 15px; line-height: 1.6; }
+.from { margin: 0; font-size: 13px; color: var(--fg3); line-height: 1.5; }
+.from button { background: none; border: 0; padding: 0; font-size: 13px; font-weight: 600; color: var(--ai-ink); text-decoration: underline; text-underline-offset: 3px; }
+.from button[aria-pressed="true"] { color: var(--fg); }
+.article { display: grid; gap: 2px; padding: 10px 12px; border-radius: 10px; background: var(--surface); border: 1px solid var(--line); font-size: 13px; }
+.article strong { font-size: 14px; }
+.article span { color: var(--fg3); }
+.article .newer { color: var(--ok-ink); font-weight: 600; }
+.article .sec { color: var(--fg2); }
+.article q { font-style: italic; color: var(--fg2); quotes: "“" "”"; margin: 2px 0 4px; }
+.guide { display: flex; gap: 8px; flex-wrap: wrap; }
+.guide button { border-radius: 8px; padding: 8px 14px; font-size: 14px; font-weight: 600; border: 1px solid var(--line-strong); background: var(--surface); }
+.guide button[aria-pressed="true"] { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+.case { display: grid; gap: 6px; padding: 12px 14px; border-radius: 10px; border: 1px dashed var(--line-strong); font-size: 14px; }
+.case strong { font-size: 14px; }
+.case .meta { font-size: 13px; color: var(--fg3); }
+.case .ok { color: var(--ok-ink); font-weight: 600; }
+.case .editing { outline: 1px solid var(--primary); outline-offset: 4px; border-radius: 4px; background: var(--surface); }
+.ask-more { display: flex; align-items: center; gap: 8px; margin-top: 8px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 13px; color: var(--fg3); }
+.ask-more svg { flex: none; }
+
+.shade { position: absolute; inset: 0; background: var(--shade); opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 1; }
+.scene.where .shade { opacity: 1; }
+.scene.where .target:not(.off) { position: relative; z-index: 2; background: var(--surface); border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-soft), 0 0 0 9px color-mix(in srgb, var(--primary) 25%, transparent); border-radius: 8px; }
+.tip { position: absolute; left: 50%; bottom: -12px; transform: translate(-50%, 100%); white-space: nowrap; background: var(--fg); color: var(--surface); font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 8px; display: none; z-index: 2; }
+.tip::after { content: ""; position: absolute; left: 50%; top: -5px; width: 10px; height: 10px; background: var(--fg); transform: translateX(-50%) rotate(45deg); }
+.scene.where .target:not(.off) > .tip { display: block; }
+.tip.left { left: auto; right: 0; transform: translate(0, 100%); }
+.tip.left::after { left: auto; right: 24px; }
+.tip.top { bottom: auto; top: -12px; transform: translate(-50%, -100%); }
+.tip.top::after { top: auto; bottom: -5px; }
+.scene.where .items { overflow: visible; }
+
+.practice-bar { display: none; align-items: center; gap: 12px; padding: 10px 20px; background: var(--practice); color: var(--on-practice); font-size: 14px; font-weight: 600; flex-wrap: wrap; }
+.practice-bar span { font-weight: 400; }
+.practice-bar button { margin-left: auto; border: 1px solid currentColor; background: none; color: inherit; border-radius: 6px; padding: 3px 10px; font-size: 13px; font-weight: 600; }
+.scene.practice .practice-bar { display: flex; }
+.scene.practice::after { content: ""; position: absolute; inset: 0; border: 3px solid var(--practice); border-radius: inherit; pointer-events: none; z-index: 5; }
+.scene.practice .work { background: repeating-linear-gradient(-45deg, transparent 0 14px, color-mix(in srgb, var(--practice) 6%, transparent) 14px 28px); }
+.caption { display: none; font-size: 14px; font-weight: 600; color: var(--practice); margin-right: auto; }
+.scene.practice .caption { display: block; }
+.cursor { position: absolute; left: 0; top: 0; width: 22px; height: 22px; border-radius: 50%; background: color-mix(in srgb, var(--practice) 30%, transparent); border: 2px solid var(--practice); z-index: 6; pointer-events: none; display: none; transition: transform 0.9s cubic-bezier(0.5, 0, 0.2, 1); }
+.scene.practice .cursor { display: block; }
+.cursor.tap { animation: tap 0.35s; }
+@keyframes tap { 50% { box-shadow: 0 0 0 10px color-mix(in srgb, var(--practice) 25%, transparent); } }
+
+@media (prefers-reduced-motion: reduce) { .cursor { transition: none; } .cursor.tap { animation: none; } .shade { transition: none; } .qh::after { transition: none; } }
+@media (max-width: 860px) {
+  .grid { grid-template-columns: minmax(0, 1fr); }
+  .panel { border-left: 0; border-top: 1px solid var(--line); }
+  .work { padding: 20px 16px 24px; }
+  .panel { padding: 18px 16px 20px; }
+  .text h2 { font-size: 30px; }
+  .text p { font-size: 18px; }
+  .top h1 { font-size: 22px; }
+  .top p { font-size: 15px; }
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="ai-grad" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" class="from"/><stop offset="100%" class="to"/></linearGradient></defs></svg>
+
+<header class="top">
+  <h1 id="step-title"></h1>
+  <p id="step-text"></p>
+</header>
+
+<main class="stage">
+
+  <!-- Text slides -->
+  <div class="text" id="t-open" hidden>
+    <h2>An assistant on the screen you're on.</h2>
+    <p>It reads approved help content and the screen in front of the user. Nothing else. Every answer says which.</p>
+  </div>
+
+  <div class="text" id="t-real" hidden>
+    <h2>What to prove</h2>
+    <ol>
+      <li><b>The screen tells the assistant what's on it.</b></li>
+      <li><b>The help content is good enough to answer from.</b></li>
+      <li><b>Show Me How runs on the real front end, not a copy.</b></li>
+    </ol>
+  </div>
+
+  <!-- Live prototype -->
+  <div class="frame scene" id="scene1" hidden>
+    <div class="practice-bar">Practice Copy of 1010 – Federal Reserve Account <span>Nothing here touches live data</span><button class="exit">Exit Practice</button></div>
+    <div class="grid">
+      <div class="work">
+        <div class="shade"></div>
+        <div class="ex-head">
+          <h2>1010 – Federal Reserve Account</h2>
+          <span class="target" id="status-wrap" style="position:relative"><span class="tip">This status</span><button class="pill term" data-ask="q-status">In Review</button></span>
+          <div class="facts"><span>July 2026</span><span>Granite Harbor Bank</span><span class="target" id="role-wrap" style="position:relative"><span class="tip">Your role on this account</span>Reviewer: <strong>you</strong></span></div>
+        </div>
+        <div class="steps">
+          <span class="done"><span class="dot">✓</span>Prepare</span><span class="sep"></span>
+          <span class="now"><span class="dot">2</span>Review</span><span class="sep"></span>
+          <span><span class="dot">3</span>Approve</span>
+        </div>
+        <div class="recon">
+          <div class="kv">
+            <span>GL balance</span><strong>$1,204,330.12</strong>
+            <span>Bank balance</span><strong>$1,198,880.12</strong>
+            <span>Unexplained difference</span><strong class="diff" id="diff1">$1,250.00</strong>
+          </div>
+          <div class="items target" id="items1">
+            <span class="tip top">Open items and their statuses</span>
+            <div class="item explained"><span>Outstanding check #8812</span><span class="amt">$4,200.00</span><button class="how term" data-ask="q-items">Timing difference</button></div>
+            <div class="item target" id="fee1"><span class="tip">Still unexplained</span><span>Bank fee, not yet booked</span><span class="amt">$1,250.00</span><button class="how term" data-ask="q-items">Unexplained</button></div>
+          </div>
+        </div>
+        <div class="row-btns">
+          <span class="caption" id="caption1" role="status" aria-live="polite"></span>
+          <span class="target certify-wrap" id="certify-wrap" data-ask="q-grey" role="button" tabindex="0" aria-label="Why is Certify unavailable?"><span class="tip left">Certify, your step</span><button class="btn" id="certify1" disabled tabindex="-1">Certify</button></span>
+        </div>
+      </div>
+
+      <aside class="panel" id="panel1">
+        <div class="panel-title"><svg class="sparkle" viewBox="0 0 16 16" aria-hidden="true"><path d="M6.2,3.6 Q7.44,8.56 12.4,9.8 Q7.44,11.04 6.2,16 Q4.96,11.04 0,9.8 Q4.96,8.56 6.2,3.6 Z"/><path d="M12.6,1 Q13.28,3.72 16,4.4 Q13.28,5.08 12.6,7.8 Q11.92,5.08 9.2,4.4 Q11.92,3.72 12.6,1 Z"/></svg>Assistant</div>
+
+        <div class="qa">
+          <button class="qh" aria-expanded="true" aria-controls="q-how">How do I certify a reconciliation?</button>
+          <div class="qb" id="q-how">
+            <p class="a">Three sign-offs: the preparer, then the reviewer, then the approver. You're the reviewer here, so your step is Certify. Right now one open item is still unexplained, so Certify is off.</p>
+            <p class="from">From Trintech Help: <button data-show="art1" aria-pressed="false">Certifying a Reconciliation › Reviewer</button> · v2026.2</p>
+            <div class="article" id="art1" hidden>
+              <strong>Certifying a Reconciliation</strong>
+              <q>The reviewer certifies once every open item carries an explanation. Certification then passes to the approver.</q>
+              <span class="sec">Sections: Preparer · Reviewer · Approver · v2026.2</span>
+              <span>Trintech Help · approved 07/01/26</span>
+              <span class="newer">Replaces the 03/12/26 version</span>
+            </div>
+            <div class="guide">
+              <button id="where1" aria-pressed="false">Show Me Where</button>
+              <button id="how1" aria-pressed="false">Show Me How</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="qa">
+          <button class="qh" aria-expanded="false" aria-controls="q-grey">Why is Certify greyed out?</button>
+          <div class="qb" id="q-grey" hidden>
+            <p class="a">The $1,250.00 bank fee is still unexplained. Certify unlocks when the difference is $0.00.</p>
+            <p class="from">From this screen · <button data-where="fee1" aria-pressed="false">Show me</button></p>
+          </div>
+        </div>
+
+        <div class="qa">
+          <button class="qh" aria-expanded="false" aria-controls="q-status">What does In Review mean?</button>
+          <div class="qb" id="q-status" hidden>
+            <p class="a">The preparer has finished and signed off. The reconciliation is with the reviewer, which is you, until you certify it.</p>
+            <p class="from">From Trintech Help: <button data-show="art-status" aria-pressed="false">Reconciliation Statuses › In Review</button> · v2026.2 · <button data-where="status-wrap" aria-pressed="false">Show me</button></p>
+            <div class="article" id="art-status" hidden>
+              <strong>Reconciliation Statuses</strong>
+              <q>In Review: the preparer has signed off and the reconciliation awaits the reviewer's certification.</q>
+              <span class="sec">Sections: In Preparation · In Review · Approved · Pending Recertification · v2026.2</span>
+              <span>Trintech Help · approved 07/01/26</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="qa">
+          <button class="qh" aria-expanded="false" aria-controls="q-items">What do the item statuses mean?</button>
+          <div class="qb" id="q-items" hidden>
+            <p class="a">Each open item is explained or unexplained. An explained item carries its reason: a timing difference clears on its own, like a check the bank hasn't processed; an adjustment to book is something you record, like a bank fee. Certify waits until nothing is unexplained.</p>
+            <p class="from">From Trintech Help: <button data-show="art-items" aria-pressed="false">Open Items › Statuses</button> · v2026.2 · <button data-where="items1" aria-pressed="false">Show me</button></p>
+            <div class="article" id="art-items" hidden>
+              <strong>Open Items</strong>
+              <q>A timing difference is expected to clear without an entry. An adjustment to book requires an entry in the ledger. Unexplained items block certification.</q>
+              <span class="sec">Sections: Statuses · Explaining an item · v2026.2</span>
+              <span>Trintech Help · approved 07/01/26</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="qa">
+          <button class="qh" aria-expanded="false" aria-controls="q-perm">Is certifying permanent?</button>
+          <div class="qb" id="q-perm" hidden>
+            <p class="a">For you, yes. Certify passes it to the approver, and you can't pull it back yourself. After approval it's locked for the period, and only an administrator can reopen it.</p>
+            <p class="from">From Trintech Help: <button data-show="art-perm" aria-pressed="false">Certifying a Reconciliation › After review</button> · v2026.2</p>
+            <div class="article" id="art-perm" hidden>
+              <strong>Certifying a Reconciliation</strong>
+              <q>A certified reconciliation cannot be returned by the reviewer. After approval it is locked for the period; an administrator may reopen it.</q>
+              <span class="sec">Section: After review · v2026.2</span>
+              <span>Trintech Help · approved 07/01/26</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="qa">
+          <button class="qh" aria-expanded="false" aria-controls="q-two">Can this account have two reviewers?</button>
+          <div class="qb" id="q-two" hidden>
+            <p class="a">Help doesn't cover that. I can draft a support case with this conversation attached, so you won't need to repeat it. Your Case Manager sends it.</p>
+            <button class="btn quiet" id="open-case">Draft a Case</button>
+            <div class="case" id="case" hidden>
+              <strong>Case draft</strong>
+              <span class="meta">1010 – Federal Reserve Account · Certification · Cadency</span>
+              <span id="case-text">Can a reconciliation have two reviewers? Help doesn't cover it.</span>
+              <span class="ok">This conversation attached</span>
+              <span class="meta" id="case-to">To: your Case Manager</span>
+              <div class="row-btns" id="case-actions"><button class="btn quiet" id="edit-case" aria-pressed="false">Edit</button><button class="btn" id="send-case">Send to Case Manager</button></div>
+              <span class="ok" id="case-sent" role="status" hidden>Sent to your Case Manager</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="ask-more"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Ask something else</div>
+      </aside>
+    </div>
+    <span class="cursor" id="cursor1"></span>
+  </div>
+</main>
+
+<nav class="nav">
+  <button id="prev">Back</button>
+  <button id="next">Next</button>
+  <span class="dots" id="dots"></span>
+  <span class="hint">Arrow keys move. The prototype stays live on every step.</span>
+</nav>
+
+<script>
+(function () {
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ── Prototype ── */
+  function demo(scene, cursor) {
+    var timers = [];
+    return {
+      at: function (ms, fn) { timers.push(setTimeout(fn, reduce ? 0 : ms)); },
+      clear: function () { timers.forEach(clearTimeout); timers = []; },
+      start: function () { cursor.style.transition = "none"; cursor.style.transform = "translate(-40px,-40px)"; void cursor.offsetWidth; cursor.style.transition = ""; },
+      moveTo: function (el) {
+        var f = scene.getBoundingClientRect(), r = el.getBoundingClientRect();
+        cursor.style.transform = "translate(" + (r.left - f.left + r.width / 2 - 11) + "px," + (r.top - f.top + r.height / 2 - 11) + "px)";
+      },
+      tap: function () { cursor.classList.remove("tap"); void cursor.offsetWidth; cursor.classList.add("tap"); }
+    };
+  }
+  function pointer(scene, panel, onReset) {
+    function reset() {
+      scene.classList.remove("where");
+      panel.querySelectorAll("[data-where], .guide button").forEach(function (b) { b.setAttribute("aria-pressed", "false"); });
+      if (onReset) onReset();
+    }
+    function point(id) {
+      var el = document.getElementById(id);
+      scene.querySelectorAll(".target").forEach(function (t) { t.classList.toggle("off", t !== el); });
+      scene.classList.add("where");
+    }
+    function where(btn, id) {
+      var on = btn.getAttribute("aria-pressed") !== "true";
+      reset();
+      if (!on) return;
+      point(id); btn.setAttribute("aria-pressed", "true");
+    }
+    panel.querySelectorAll("[data-where]").forEach(function (b) { b.addEventListener("click", function () { where(b, b.dataset.where); }); });
+    panel.querySelectorAll("[data-show]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var el = document.getElementById(b.dataset.show), open = b.getAttribute("aria-pressed") === "true";
+        el.hidden = open; b.setAttribute("aria-pressed", String(!open));
+      });
+    });
+    function closeCards() { panel.querySelectorAll("[data-show]").forEach(function (b) { document.getElementById(b.dataset.show).hidden = true; b.setAttribute("aria-pressed", "false"); }); }
+    /* A short flash on the screen and in the panel, so a question opened from the screen is seen to open */
+    var flashTimer;
+    function flash(el, qaId) {
+      clearTimeout(flashTimer);
+      scene.querySelectorAll(".target").forEach(function (t) { t.classList.toggle("off", t !== el); });
+      scene.classList.add("where");
+      var qa = document.getElementById(qaId).closest(".qa");
+      qa.classList.remove("lit"); void qa.offsetWidth; qa.classList.add("lit");
+      flashTimer = setTimeout(function () { scene.classList.remove("where"); qa.classList.remove("lit"); }, 1400);
+    }
+    return { reset: reset, where: where, point: point, closeCards: closeCards, flash: flash };
+  }
+  function questions(panel, onOpen) {
+    var heads = panel.querySelectorAll(".qh");
+    function set(h, on) { h.setAttribute("aria-expanded", String(on)); document.getElementById(h.getAttribute("aria-controls")).hidden = !on; }
+    function open(id) { heads.forEach(function (h) { set(h, h.getAttribute("aria-controls") === id); }); if (onOpen) onOpen(); }
+    heads.forEach(function (h) {
+      h.addEventListener("click", function () {
+        if (h.getAttribute("aria-expanded") === "true") { set(h, false); if (onOpen) onOpen(); } else open(h.getAttribute("aria-controls"));
+      });
+    });
+    return { open: open };
+  }
+
+  var s1 = document.getElementById("scene1"), d1 = demo(s1, document.getElementById("cursor1"));
+  var where1 = document.getElementById("where1"), how1 = document.getElementById("how1");
+  var fee1 = document.getElementById("fee1"), certify1 = document.getElementById("certify1"), caption1 = document.getElementById("caption1"), diff1 = document.getElementById("diff1");
+  var p1 = pointer(s1, document.getElementById("panel1"), function () {
+    d1.clear();
+    s1.classList.remove("practice");
+    certify1.disabled = true;
+    fee1.classList.remove("explained"); fee1.querySelector(".how").textContent = "Unexplained";
+    diff1.textContent = "$1,250.00"; diff1.className = "diff";
+  });
+  var q1 = questions(document.getElementById("panel1"), function () { p1.reset(); });
+  where1.addEventListener("click", function () { p1.where(where1, "certify-wrap"); });
+  function runHow() {
+    p1.reset();
+    s1.classList.add("practice"); how1.setAttribute("aria-pressed", "true");
+    d1.start();
+    caption1.textContent = "Explain the last open item";
+    d1.at(500, function () { d1.moveTo(fee1.querySelector(".how")); });
+    d1.at(1500, function () { d1.tap(); fee1.classList.add("explained"); fee1.querySelector(".how").textContent = "Adjustment to book"; diff1.textContent = "$0.00"; diff1.className = "zero"; certify1.disabled = false; });
+    d1.at(2600, function () { caption1.textContent = "Now certify as reviewer"; d1.moveTo(certify1); });
+    d1.at(3600, function () { d1.tap(); caption1.textContent = "Done. Nothing was certified on 1010."; });
+  }
+  how1.addEventListener("click", function () { if (how1.getAttribute("aria-pressed") === "true") { p1.reset(); return; } runHow(); });
+  s1.querySelector(".exit").addEventListener("click", p1.reset);
+  s1.querySelectorAll("[data-ask]").forEach(function (el) {
+    function ask() { if (s1.classList.contains("practice")) return; q1.open(el.dataset.ask); p1.flash(el.closest(".target"), el.dataset.ask); }
+    el.addEventListener("click", ask);
+    if (el.getAttribute("role") === "button") el.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); ask(); } });
+  });
+  var openCase = document.getElementById("open-case"), caseBox = document.getElementById("case"), caseText = document.getElementById("case-text"), editCase = document.getElementById("edit-case");
+  openCase.addEventListener("click", function () { openCase.hidden = true; caseBox.hidden = false; });
+  editCase.addEventListener("click", function () {
+    var on = editCase.getAttribute("aria-pressed") !== "true";
+    caseText.contentEditable = on ? "plaintext-only" : "false"; caseText.classList.toggle("editing", on);
+    editCase.setAttribute("aria-pressed", String(on)); editCase.textContent = on ? "Done" : "Edit";
+    if (on) caseText.focus();
+  });
+  document.getElementById("send-case").addEventListener("click", function () {
+    if (editCase.getAttribute("aria-pressed") === "true") editCase.click();
+    document.getElementById("case-actions").hidden = true; document.getElementById("case-sent").hidden = false;
+    document.getElementById("case-to").hidden = true;
+  });
+  function resetCase() {
+    openCase.hidden = false; caseBox.hidden = true;
+    document.getElementById("case-actions").hidden = false; document.getElementById("case-sent").hidden = true; document.getElementById("case-to").hidden = false;
+    if (editCase.getAttribute("aria-pressed") === "true") editCase.click();
+    caseText.textContent = "Can a reconciliation have two reviewers? Help doesn't cover it.";
+  }
+  function fresh() { p1.reset(); p1.closeCards(); resetCase(); q1.open("q-how"); }
+
+  /* ── Steps ── */
+  var steps = [
+    { title: "Integrated Help", text: "", show: "t-open", head: false },
+    { title: "It knows the screen and your role", text: "The panel opens on the questions people ask here. Every answer says what it read.", show: "scene1", run: function () { p1.point("role-wrap"); document.querySelector('[data-show="art1"]').click(); } },
+    { title: "Show Me Where", text: "The screen dims. The control stays lit.", show: "scene1", run: function () { where1.click(); } },
+    { title: "Show Me How", text: "The steps run in a practice copy. Nothing is written.", show: "scene1", run: function () { runHow(); } },
+    { title: "What to prove", text: "", show: "t-real", head: false }
+  ];
+  var views = ["t-open", "t-real", "scene1"];
+  var title = document.getElementById("step-title"), text = document.getElementById("step-text"), dots = document.getElementById("dots"), prev = document.getElementById("prev"), next = document.getElementById("next");
+  steps.forEach(function () { dots.appendChild(document.createElement("i")); });
+  var cur = -1;
+  function goTo(n) {
+    n = Math.max(0, Math.min(steps.length - 1, n));
+    if (n === cur) return;
+    cur = n;
+    var st = steps[n];
+    views.forEach(function (v) { document.getElementById(v).hidden = v !== st.show; });
+    title.textContent = st.title; text.textContent = st.text;
+    document.querySelector(".top").classList.toggle("quiet", st.head === false);
+    dots.querySelectorAll("i").forEach(function (d, i) { d.classList.toggle("on", i === n); });
+    prev.disabled = n === 0; next.disabled = n === steps.length - 1;
+    if (st.show === "scene1") { fresh(); if (st.run) st.run(); }
+    if (location.hash !== "#" + (n + 1)) history.replaceState(null, "", "#" + (n + 1));
+    window.scrollTo(0, 0);
+  }
+  prev.addEventListener("click", function () { goTo(cur - 1); });
+  next.addEventListener("click", function () { goTo(cur + 1); });
+  document.addEventListener("keydown", function (e) {
+    if (e.target.isContentEditable) return;
+    if (e.key === "ArrowRight" || e.key === "PageDown" || e.key === " ") { e.preventDefault(); goTo(cur + 1); }
+    if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); goTo(cur - 1); }
+    if (e.key === "Escape" && steps[cur].show === "scene1") fresh();
+  });
+  window.addEventListener("hashchange", function () { var n = parseInt(location.hash.slice(1), 10); if (n) goTo(n - 1); });
+  var start = parseInt(location.hash.slice(1), 10);
+  goTo(start ? start - 1 : 0);
+})();
+</script>
+</body>
+</html>
