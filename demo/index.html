@@ -1,0 +1,738 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Integrated Help</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Three examples of one assistant, chosen by a switch. Help reads help content and the screen. Learn runs in a practice copy. Data, a later stage, also reads the customer's records. Tokens follow the Trintech (AI Surge) design system. */
+:root {
+  --bg: #eef2f7;
+  --surface: #ffffff;
+  --raised: #f8fafc;
+  --fg: #0f172a;
+  --fg2: #334155;
+  --fg3: #5b6b82;
+  --line: #e2e8f0;
+  --line-strong: #cbd5e1;
+  --primary: #0652dd;
+  --primary-soft: #e8f0fd;
+  --on-primary: #ffffff;
+  --ai-from: #5f00c9;
+  --ai-to: #0652dd;
+  --ai-ink: #4f1fd6;
+  --ai-soft: #f3efff;
+  --warn-ink: #7a5300;
+  --warn-soft: #fff4d1;
+  --ok-ink: #2f6b00;
+  --ok-soft: #e9f8d2;
+  --practice: #0e7c86;
+  --on-practice: #ffffff;
+  --shade: rgba(15, 23, 42, 0.48);
+  --font: "Aptos", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0a101c; --surface: #121a2a; --raised: #172133; --fg: #e6ebf3; --fg2: #c3cddb; --fg3: #8d9bb1;
+    --line: #232f44; --line-strong: #33425c; --primary: #7aa7ff; --primary-soft: #16264a; --on-primary: #0a101c;
+    --ai-from: #b48cff; --ai-to: #7aa7ff; --ai-ink: #b9a3ff; --ai-soft: #1d1838;
+    --warn-ink: #f2cf72; --warn-soft: #3a2e08; --ok-ink: #a9dc6a; --ok-soft: #1c2a0c;
+    --practice: #4fd1db; --on-practice: #04191b; --shade: rgba(0, 0, 0, 0.6); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0a101c; --surface: #121a2a; --raised: #172133; --fg: #e6ebf3; --fg2: #c3cddb; --fg3: #8d9bb1;
+  --line: #232f44; --line-strong: #33425c; --primary: #7aa7ff; --primary-soft: #16264a; --on-primary: #0a101c;
+  --ai-from: #b48cff; --ai-to: #7aa7ff; --ai-ink: #b9a3ff; --ai-soft: #1d1838;
+  --warn-ink: #f2cf72; --warn-soft: #3a2e08; --ok-ink: #a9dc6a; --ok-soft: #1c2a0c;
+  --practice: #4fd1db; --on-practice: #04191b; --shade: rgba(0, 0, 0, 0.6); color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { overflow-x: hidden; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 15px; line-height: 1.5; margin: 0; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.num { font-variant-numeric: tabular-nums; }
+
+.wrap { max-width: 1180px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 48px; display: grid; gap: 18px; min-width: 0; }
+.switch { display: flex; gap: 4px; padding: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; width: fit-content; max-width: 100%; }
+.switch button { border: 0; background: none; padding: 8px 16px; border-radius: 7px; font-size: 14px; font-weight: 600; color: var(--fg3); white-space: nowrap; display: inline-flex; align-items: center; gap: 8px; }
+.switch button[aria-selected="true"] { background: var(--fg); color: var(--surface); }
+.stage { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 999px; background: var(--warn-soft); color: var(--warn-ink); }
+.concept { display: grid; gap: 18px; min-width: 0; }
+.lede { margin: 0; font-size: 18px; line-height: 1.45; max-width: 640px; text-wrap: balance; }
+.note { margin: 0; font-size: 13px; color: var(--fg3); max-width: 640px; }
+
+/* Frame */
+.frame { position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 18px 48px -18px rgba(15, 23, 42, 0.22); min-width: 0; }
+.grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 400px); position: relative; }
+.work { padding: 24px 24px 28px; display: grid; gap: 16px; align-content: start; position: relative; min-width: 0; }
+.panel { border-left: 1px solid var(--line); background: var(--raised); padding: 20px 22px 22px; display: grid; gap: 4px; align-content: start; position: relative; z-index: 3; min-width: 0; }
+.panel-title { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--ai-ink); margin-bottom: 6px; }
+.sparkle { width: 14px; height: 14px; flex: none; }
+.sparkle path { fill: url(#ai-grad); }
+#ai-grad .from { stop-color: var(--ai-from); }
+#ai-grad .to { stop-color: var(--ai-to); }
+
+.ex-head { display: flex; align-items: center; gap: 8px 14px; flex-wrap: wrap; }
+.ex-head h2 { margin: 0; font-size: 22px; font-weight: 700; }
+.facts { display: flex; gap: 4px 16px; flex-wrap: wrap; font-size: 13px; color: var(--fg3); }
+.facts strong { color: var(--fg); font-weight: 600; }
+.pill { font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 999px; background: var(--warn-soft); color: var(--warn-ink); border: 0; }
+.steps { display: flex; gap: 8px; align-items: center; font-size: 13px; color: var(--fg3); flex-wrap: wrap; }
+.steps > span { display: inline-flex; align-items: center; gap: 6px; }
+.steps .dot { width: 18px; height: 18px; border-radius: 50%; display: inline-grid; place-items: center; font-size: 11px; font-weight: 700; border: 1.5px solid var(--line-strong); color: var(--fg3); }
+.steps .done .dot { background: var(--ok-soft); border-color: var(--ok-ink); color: var(--ok-ink); }
+.steps .now { color: var(--fg); font-weight: 600; }
+.steps .now .dot { border-color: var(--primary); color: var(--primary); }
+.steps .sep { width: 18px; height: 1px; background: var(--line-strong); }
+.row-btns { display: flex; justify-content: flex-end; align-items: center; gap: 14px; position: relative; flex-wrap: wrap; }
+.btn { border: 0; border-radius: 8px; padding: 8px 18px; font-size: 14px; font-weight: 600; background: var(--primary); color: var(--on-primary); }
+.btn:disabled { opacity: 0.4; cursor: default; }
+.btn.quiet { background: var(--surface); color: var(--fg); border: 1px solid var(--line-strong); }
+
+/* Askable terms on the screen */
+.term { cursor: help; text-decoration: underline dotted; text-decoration-color: color-mix(in srgb, currentColor 45%, transparent); text-underline-offset: 3px; }
+.term:hover { text-decoration-color: var(--ai-ink); }
+.certify-wrap { position: relative; display: inline-block; cursor: help; }
+.certify-wrap .btn { pointer-events: none; }
+.scene.practice .certify-wrap { cursor: default; }
+.scene.practice .certify-wrap .btn { pointer-events: auto; }
+
+/* Reconciliation and postings */
+.recon { display: grid; gap: 14px; min-width: 0; }
+.kv { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; font-size: 14px; }
+.kv span { color: var(--fg3); }
+.kv strong { font-variant-numeric: tabular-nums; font-weight: 600; text-align: right; }
+.kv .diff { color: var(--warn-ink); }
+.kv .zero { color: var(--ok-ink); }
+.items { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; min-width: 0; }
+.item { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px 12px; align-items: center; padding: 10px 14px; border-top: 1px solid var(--line); font-size: 14px; position: relative; }
+.item:first-child { border-top: 0; }
+.item .amt { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.item .how { font-size: 12px; color: var(--fg3); border: 1px solid var(--line-strong); border-radius: 6px; padding: 2px 8px; background: none; white-space: nowrap; }
+.item.explained .how { color: var(--ok-ink); border-color: var(--ok-ink); background: var(--ok-soft); font-weight: 600; }
+.item small { color: var(--fg3); font-size: 12px; }
+.item .side { display: grid; gap: 2px; min-width: 0; }
+@media (max-width: 480px) { .item { grid-template-columns: minmax(0, 1fr) auto; } .item .how { grid-column: 1 / -1; justify-self: start; } }
+
+/* Questions */
+.qa { border-top: 1px solid var(--line); min-width: 0; }
+.qa:first-of-type { border-top: 0; }
+.qh { width: 100%; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 11px 0; background: none; border: 0; text-align: left; font-size: 14px; font-weight: 600; color: var(--fg2); }
+.qh::after { content: ""; flex: none; width: 8px; height: 8px; margin-top: 6px; margin-right: 3px; border-right: 1.5px solid var(--fg3); border-bottom: 1.5px solid var(--fg3); transform: rotate(45deg); transition: transform 0.2s; }
+.qh[aria-expanded="true"] { color: var(--fg); }
+.qh[aria-expanded="true"]::after { transform: rotate(-135deg); margin-top: 9px; }
+.qb { display: grid; gap: 10px; padding: 0 0 16px; }
+.qa.lit { animation: lit 1.8s ease-out; border-radius: 8px; }
+@keyframes lit { 0%, 35% { background: var(--ai-soft); box-shadow: 0 0 0 10px var(--ai-soft); } 100% { background: transparent; box-shadow: 0 0 0 10px transparent; } }
+@media (prefers-reduced-motion: reduce) { .qa.lit { animation: none; background: var(--ai-soft); box-shadow: 0 0 0 10px var(--ai-soft); } }
+.a { margin: 0; font-size: 15px; line-height: 1.6; }
+.from { margin: 0; font-size: 13px; color: var(--fg3); line-height: 1.5; }
+.from button { background: none; border: 0; padding: 0; font-size: 13px; font-weight: 600; color: var(--ai-ink); text-decoration: underline; text-underline-offset: 3px; }
+.from button[aria-pressed="true"] { color: var(--fg); }
+.from .off { text-decoration: line-through; white-space: nowrap; }
+.article { display: grid; gap: 2px; padding: 10px 12px; border-radius: 10px; background: var(--surface); border: 1px solid var(--line); font-size: 13px; }
+.article strong { font-size: 14px; }
+.article span { color: var(--fg3); }
+.article .newer { color: var(--ok-ink); font-weight: 600; }
+.article q { font-style: italic; color: var(--fg2); quotes: "“" "”"; margin: 2px 0 4px; }
+.choices { grid-column: 1 / -1; display: flex; gap: 8px; flex-wrap: wrap; }
+.choices button { border: 1px solid var(--line-strong); background: var(--surface); border-radius: 6px; padding: 4px 10px; font-size: 13px; }
+.choices button:hover { border-color: var(--practice); color: var(--practice); }
+.scene.practice .how.pick { cursor: pointer; border-color: var(--practice); color: var(--practice); }
+.scene.practice .item.explained .how.pick { cursor: default; border-color: var(--ok-ink); color: var(--ok-ink); }
+.article .sec { color: var(--fg2); }
+.guide { display: flex; gap: 8px; flex-wrap: wrap; }
+.guide button { border-radius: 8px; padding: 8px 14px; font-size: 14px; font-weight: 600; border: 1px solid var(--line-strong); background: var(--surface); }
+.guide button[aria-pressed="true"] { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+.case { display: grid; gap: 6px; padding: 12px 14px; border-radius: 10px; border: 1px dashed var(--line-strong); font-size: 14px; }
+.case strong { font-size: 14px; }
+.case .meta { font-size: 13px; color: var(--fg3); }
+.case .ok { color: var(--ok-ink); font-weight: 600; }
+.case .editing { outline: 1px solid var(--primary); outline-offset: 4px; border-radius: 4px; background: var(--surface); }
+.ask-more { display: flex; align-items: center; gap: 8px; margin-top: 8px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 13px; color: var(--fg3); }
+.ask-more svg { flex: none; }
+.kept { display: flex; gap: 8px; align-items: baseline; font-size: 13px; color: var(--fg3); margin-top: 8px; padding-top: 12px; border-top: 1px solid var(--line); }
+.kept::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--ok-ink); flex: none; align-self: center; }
+.kept > span { min-width: 0; }
+.kept strong { color: var(--fg); font-weight: 600; }
+
+/* Show me where */
+.shade { position: absolute; inset: 0; background: var(--shade); opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 1; }
+.scene.where .shade { opacity: 1; }
+.scene.where .target:not(.off) { position: relative; z-index: 2; background: var(--surface); border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-soft), 0 0 0 9px color-mix(in srgb, var(--primary) 25%, transparent); border-radius: 8px; }
+.scene.where .pill.target:not(.off) { border-radius: 999px; }
+.tip { position: absolute; left: 50%; bottom: -12px; transform: translate(-50%, 100%); white-space: nowrap; background: var(--fg); color: var(--surface); font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 8px; display: none; z-index: 2; }
+.tip::after { content: ""; position: absolute; left: 50%; top: -5px; width: 10px; height: 10px; background: var(--fg); transform: translateX(-50%) rotate(45deg); }
+.scene.where .target:not(.off) > .tip { display: block; }
+.tip.left { left: auto; right: 0; transform: translate(0, 100%); }
+.tip.left::after { left: auto; right: 24px; }
+.tip.top { bottom: auto; top: -12px; transform: translate(-50%, -100%); }
+.tip.top::after { top: auto; bottom: -5px; }
+.scene.where .items { overflow: visible; }
+
+/* Practice copy */
+.practice-bar { display: none; align-items: center; gap: 12px; padding: 10px 20px; background: var(--practice); color: var(--on-practice); font-size: 14px; font-weight: 600; flex-wrap: wrap; }
+.practice-bar span { font-weight: 400; }
+.practice-bar button { margin-left: auto; border: 1px solid currentColor; background: none; color: inherit; border-radius: 6px; padding: 3px 10px; font-size: 13px; font-weight: 600; }
+.scene.practice .practice-bar { display: flex; }
+.scene.practice::after { content: ""; position: absolute; inset: 0; border: 3px solid var(--practice); border-radius: inherit; pointer-events: none; z-index: 5; }
+.scene.practice .work { background: repeating-linear-gradient(-45deg, transparent 0 14px, color-mix(in srgb, var(--practice) 6%, transparent) 14px 28px); }
+.caption { display: none; font-size: 14px; font-weight: 600; color: var(--practice); margin-right: auto; }
+.scene.practice .caption { display: block; }
+.cursor { position: absolute; left: 0; top: 0; width: 22px; height: 22px; border-radius: 50%; background: color-mix(in srgb, var(--practice) 30%, transparent); border: 2px solid var(--practice); z-index: 6; pointer-events: none; display: none; transition: transform 0.9s cubic-bezier(0.5, 0, 0.2, 1); }
+.scene.practice .cursor { display: block; }
+.cursor.tap { animation: tap 0.35s; }
+@keyframes tap { 50% { box-shadow: 0 0 0 10px color-mix(in srgb, var(--practice) 25%, transparent); } }
+
+/* Success Center front door */
+.sc-bar { display: flex; align-items: center; gap: 18px; padding: 14px 24px; border-bottom: 1px solid var(--line); font-size: 14px; color: var(--fg3); flex-wrap: wrap; }
+.sc-bar b { color: var(--fg); font-weight: 700; font-size: 16px; }
+.door { padding: 36px 24px 40px; display: grid; justify-items: center; }
+.door-card { width: min(100%, 640px); display: grid; gap: 16px; min-width: 0; }
+.door-card h2 { margin: 0; font-size: 24px; font-weight: 700; text-align: center; text-wrap: balance; }
+.path { display: grid; gap: 0; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--surface); }
+.path-head { display: flex; justify-content: space-between; gap: 12px; padding: 12px 16px; background: var(--raised); border-bottom: 1px solid var(--line); font-size: 14px; flex-wrap: wrap; }
+.path-head strong { font-size: 15px; }
+.path-head span { color: var(--fg3); }
+.session { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 11px 16px; border-top: 1px solid var(--line); font-size: 14px; }
+.session:first-of-type { border-top: 0; }
+.session .dot { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; border: 1.5px solid var(--line-strong); color: var(--fg3); }
+.session .len { font-size: 13px; color: var(--fg3); white-space: nowrap; }
+.session.done .dot { background: var(--ok-soft); border-color: var(--ok-ink); color: var(--ok-ink); }
+.session.done .len { color: var(--ok-ink); font-weight: 600; }
+.door .row-btns { justify-content: center; }
+.door .ask-more { justify-content: center; }
+.why { margin: 0; font-size: 14px; color: var(--fg2); }
+.why q { font-style: italic; }
+
+/* Learning session (twin) */
+.lesson { display: grid; gap: 14px; }
+.lesson h3 { margin: 0; font-size: 16px; }
+.lesson p { margin: 0; font-size: 15px; line-height: 1.6; }
+.todo { display: grid; gap: 8px; }
+.todo div { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; }
+.todo .box { flex: none; width: 18px; height: 18px; border-radius: 5px; border: 1.5px solid var(--line-strong); display: grid; place-items: center; font-size: 11px; color: var(--surface); margin-top: 2px; }
+.todo .done .box { background: var(--ok-ink); border-color: var(--ok-ink); }
+.todo .done { color: var(--fg3); text-decoration: line-through; }
+.recorded { display: none; padding: 12px 14px; border-radius: 10px; background: var(--ok-soft); color: var(--ok-ink); font-size: 14px; font-weight: 600; }
+.scene.complete .recorded { display: block; }
+
+@media (prefers-reduced-motion: reduce) { .cursor { transition: none; } .cursor.tap { animation: none; } .shade { transition: none; } .qh::after { transition: none; } }
+@media (max-width: 860px) {
+  .grid { grid-template-columns: minmax(0, 1fr); }
+  .panel { border-left: 0; border-top: 1px solid var(--line); }
+  .lede { font-size: 16px; }
+  .work { padding: 20px 16px 24px; }
+  .panel { padding: 18px 16px 20px; }
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="ai-grad" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" class="from"/><stop offset="100%" class="to"/></linearGradient></defs></svg>
+
+<div class="wrap">
+  <div class="switch" role="tablist" aria-label="Examples">
+    <button role="tab" id="tab-help" aria-controls="c-help" aria-selected="true">Help</button>
+    <button role="tab" id="tab-learn" aria-controls="c-learn" aria-selected="false">Learn</button>
+    <button role="tab" id="tab-data" aria-controls="c-data" aria-selected="false">Data <span class="stage">later</span></button>
+  </div>
+
+  <!-- ═══ Help: in Cadency ═══ -->
+  <section id="c-help" role="tabpanel" aria-labelledby="tab-help" class="concept">
+    <p class="lede">Open a question, then try Show Me Where and Show Me How. Click a status on the screen to ask what it means.</p>
+    <div class="frame scene" id="scene1">
+      <div class="practice-bar">Practice Copy of 1010 – Federal Reserve Account <span>Nothing here touches live data</span><button class="exit">Exit Practice</button></div>
+      <div class="grid">
+        <div class="work">
+          <div class="shade"></div>
+          <div class="ex-head">
+            <h2>1010 – Federal Reserve Account</h2>
+            <span class="target" id="status-wrap" style="position:relative"><span class="tip">This status</span><button class="pill term" data-ask="q-status">In Review</button></span>
+            <div class="facts"><span>July 2026</span><span>Granite Harbor Bank</span><span>Reviewer: <strong>you</strong></span></div>
+          </div>
+          <div class="steps">
+            <span class="done"><span class="dot">✓</span>Prepare</span><span class="sep"></span>
+            <span class="now"><span class="dot">2</span>Review</span><span class="sep"></span>
+            <span><span class="dot">3</span>Approve</span>
+          </div>
+          <div class="recon">
+            <div class="kv">
+              <span>GL balance</span><strong>$1,204,330.12</strong>
+              <span>Bank balance</span><strong>$1,198,880.12</strong>
+              <span>Unexplained difference</span><strong class="diff" id="diff1">$1,250.00</strong>
+            </div>
+            <div class="items target" id="items1">
+              <span class="tip top">Open items and their statuses</span>
+              <div class="item explained"><span>Outstanding check #8812</span><span class="amt">$4,200.00</span><button class="how term" data-ask="q-items">Timing difference</button></div>
+              <div class="item target" id="fee1"><span class="tip">Still unexplained</span><span>Bank fee, not yet booked</span><span class="amt">$1,250.00</span><button class="how term" data-ask="q-items">Unexplained</button></div>
+            </div>
+          </div>
+          <div class="row-btns">
+            <span class="caption" id="caption1" role="status" aria-live="polite"></span>
+            <span class="target certify-wrap" id="certify-wrap" data-ask="q-grey" role="button" tabindex="0" aria-label="Why is Certify unavailable?"><span class="tip left">Certify, your step</span><button class="btn" id="certify1" disabled tabindex="-1">Certify</button></span>
+          </div>
+        </div>
+
+        <aside class="panel" id="panel1">
+          <div class="panel-title"><svg class="sparkle" viewBox="0 0 16 16" aria-hidden="true"><path d="M6.2,3.6 Q7.44,8.56 12.4,9.8 Q7.44,11.04 6.2,16 Q4.96,11.04 0,9.8 Q4.96,8.56 6.2,3.6 Z"/><path d="M12.6,1 Q13.28,3.72 16,4.4 Q13.28,5.08 12.6,7.8 Q11.92,5.08 9.2,4.4 Q11.92,3.72 12.6,1 Z"/></svg>Assistant</div>
+
+          <div class="qa">
+            <button class="qh" aria-expanded="true" aria-controls="q-how">How do I certify a reconciliation?</button>
+            <div class="qb" id="q-how">
+              <p class="a">Three sign-offs: the preparer, then the reviewer, then the approver. You're the reviewer here, so your step is Certify. Right now one open item is still unexplained, so Certify is off.</p>
+              <p class="from">From Trintech Help: <button data-show="art1" aria-pressed="false">Certifying a Reconciliation › Reviewer</button> · v2026.2</p>
+              <div class="article" id="art1" hidden>
+                <strong>Certifying a Reconciliation</strong>
+                <q>The reviewer certifies once every open item carries an explanation. Certification then passes to the approver.</q>
+                <span class="sec">Sections: Preparer · Reviewer · Approver · v2026.2</span>
+                <span>Trintech Help · approved 07/01/26</span>
+                <span class="newer">Replaces the 03/12/26 version</span>
+              </div>
+              <div class="guide">
+                <button id="where1" aria-pressed="false">Show Me Where</button>
+                <button id="how1" aria-pressed="false">Show Me How</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="qa">
+            <button class="qh" aria-expanded="false" aria-controls="q-grey">Why is Certify greyed out?</button>
+            <div class="qb" id="q-grey" hidden>
+              <p class="a">The $1,250.00 bank fee is still unexplained. Certify unlocks when the difference is $0.00.</p>
+              <p class="from">From this screen · <button data-where="fee1" aria-pressed="false">Show me</button></p>
+            </div>
+          </div>
+
+          <div class="qa">
+            <button class="qh" aria-expanded="false" aria-controls="q-status">What does In Review mean?</button>
+            <div class="qb" id="q-status" hidden>
+              <p class="a">The preparer has finished and signed off. The reconciliation is with the reviewer, which is you, until you certify it.</p>
+              <p class="from">From Trintech Help: <button data-show="art-status" aria-pressed="false">Reconciliation Statuses › In Review</button> · v2026.2 · <button data-where="status-wrap" aria-pressed="false">Show me</button></p>
+              <div class="article" id="art-status" hidden>
+                <strong>Reconciliation Statuses</strong>
+                <q>In Review: the preparer has signed off and the reconciliation awaits the reviewer's certification.</q>
+                <span class="sec">Sections: In Preparation · In Review · Approved · Pending Recertification · v2026.2</span>
+                <span>Trintech Help · approved 07/01/26</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="qa">
+            <button class="qh" aria-expanded="false" aria-controls="q-items">What do the item statuses mean?</button>
+            <div class="qb" id="q-items" hidden>
+              <p class="a">Each open item is explained or unexplained. An explained item carries its reason: a timing difference clears on its own, like a check the bank hasn't processed; an adjustment to book is something you record, like a bank fee. Certify waits until nothing is unexplained.</p>
+              <p class="from">From Trintech Help: <button data-show="art-items" aria-pressed="false">Open Items › Statuses</button> · v2026.2 · <button data-where="items1" aria-pressed="false">Show me</button></p>
+              <div class="article" id="art-items" hidden>
+                <strong>Open Items</strong>
+                <q>A timing difference is expected to clear without an entry. An adjustment to book requires an entry in the ledger. Unexplained items block certification.</q>
+                <span class="sec">Sections: Statuses · Explaining an item · v2026.2</span>
+                <span>Trintech Help · approved 07/01/26</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="qa">
+            <button class="qh" aria-expanded="false" aria-controls="q-perm">Is certifying permanent?</button>
+            <div class="qb" id="q-perm" hidden>
+              <p class="a">For you, yes. Certify passes it to the approver, and you can't pull it back yourself. After approval it's locked for the period, and only an administrator can reopen it.</p>
+              <p class="from">From Trintech Help: <button data-show="art-perm" aria-pressed="false">Certifying a Reconciliation › After review</button> · v2026.2</p>
+              <div class="article" id="art-perm" hidden>
+                <strong>Certifying a Reconciliation</strong>
+                <q>A certified reconciliation cannot be returned by the reviewer. After approval it is locked for the period; an administrator may reopen it.</q>
+                <span class="sec">Section: After review · v2026.2</span>
+                <span>Trintech Help · approved 07/01/26</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="qa">
+            <button class="qh" aria-expanded="false" aria-controls="q-two">Can this account have two reviewers?</button>
+            <div class="qb" id="q-two" hidden>
+              <p class="a">Help doesn't cover that. I can draft a support case with this conversation attached, so you won't need to repeat it. Your Case Manager sends it.</p>
+              <button class="btn quiet" id="open-case">Draft a Case</button>
+              <div class="case" id="case" hidden>
+                <strong>Case draft</strong>
+                <span class="meta">1010 – Federal Reserve Account · Certification · Cadency</span>
+                <span id="case-text">Can a reconciliation have two reviewers? Help doesn't cover it.</span>
+                <span class="ok">This conversation attached</span>
+                <span class="meta" id="case-to">To: your Case Manager</span>
+                <div class="row-btns" id="case-actions"><button class="btn quiet" id="edit-case" aria-pressed="false">Edit</button><button class="btn" id="send-case">Send to Case Manager</button></div>
+                <span class="ok" id="case-sent" role="status" hidden>Sent to your Case Manager</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="ask-more"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Ask something else</div>
+        </aside>
+      </div>
+      <span class="cursor" id="cursor1"></span>
+    </div>
+    <p class="note">Beacon, on UAT23 on Oct 5, 2026, answered “How do I certify a reconciliation?” with the approver's step only.</p>
+    <p class="note">Article names, versions, quoted passages and the product behaviour they describe are illustrative until checked against the Cadency help.</p>
+  </section>
+
+  <!-- ═══ Learn: in the Success Center ═══ -->
+  <section id="c-learn" role="tabpanel" aria-labelledby="tab-learn" class="concept" hidden>
+    <p class="lede">Start Session 1, then explain the two open items yourself. The completion is recorded only when both are right.</p>
+    <div class="frame scene" id="scene2">
+      <div class="practice-bar">Practice Copy of Cadency <span>Reconciliation Basics · Session 1 of 3</span><button class="exit">Leave Session</button></div>
+
+      <div id="door">
+        <div class="sc-bar"><b>Success Center</b><span>Learn</span><span>Help</span><span>Support</span><span>What's New</span></div>
+        <div class="door">
+          <div class="door-card">
+            <h2>Reconciliation Basics</h2>
+            <div class="path">
+              <div class="path-head"><strong>Three sessions in a practice copy of Cadency</strong><span>About 40 min · 1 CPE</span></div>
+              <div class="session" id="s1"><span class="dot">1</span><span>Explain open items</span><span class="len">12 min</span></div>
+              <div class="session"><span class="dot">2</span><span>Attach supporting evidence</span><span class="len">14 min</span></div>
+              <div class="session"><span class="dot">3</span><span>Certify a reconciliation</span><span class="len">15 min</span></div>
+            </div>
+            <p class="why">Picked because you asked <q>I'm new to reconciliations in Cadency. Where do I start?</q></p>
+            <p class="from">From the Success Center catalogue · Certification</p>
+            <div class="row-btns"><button class="btn" id="start2">Start Session 1</button></div>
+            <div class="ask-more"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Ask about another product, task or topic</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid" id="session" hidden>
+        <div class="work">
+          <div class="ex-head">
+            <h2>1010 – Federal Reserve Account</h2>
+            <span class="pill">In Preparation</span>
+            <div class="facts"><span>July 2026</span><span>Granite Harbor Bank</span></div>
+          </div>
+          <div class="recon">
+            <div class="kv">
+              <span>GL balance</span><strong>$1,204,330.12</strong>
+              <span>Bank balance</span><strong>$1,198,880.12</strong>
+              <span>Unexplained difference</span><strong class="diff" id="diff2">$5,450.00</strong>
+            </div>
+            <div class="items">
+              <div class="item" id="item-a"><span>Outstanding check #8812</span><span class="amt">$4,200.00</span><button class="how pick" data-pick="a">Unexplained</button>
+                <div class="choices" hidden><button data-choose="timing">Timing difference</button><button data-choose="adjust">Adjustment to book</button></div></div>
+              <div class="item" id="item-b"><span>Bank fee, not yet booked</span><span class="amt">$1,250.00</span><button class="how pick" data-pick="b">Unexplained</button>
+                <div class="choices" hidden><button data-choose="timing">Timing difference</button><button data-choose="adjust">Adjustment to book</button></div></div>
+            </div>
+          </div>
+          <span class="caption" id="caption2" role="status" aria-live="polite"></span>
+        </div>
+
+        <aside class="panel">
+          <div class="panel-title"><svg class="sparkle" viewBox="0 0 16 16" aria-hidden="true"><path d="M6.2,3.6 Q7.44,8.56 12.4,9.8 Q7.44,11.04 6.2,16 Q4.96,11.04 0,9.8 Q4.96,8.56 6.2,3.6 Z"/><path d="M12.6,1 Q13.28,3.72 16,4.4 Q13.28,5.08 12.6,7.8 Q11.92,5.08 9.2,4.4 Q11.92,3.72 12.6,1 Z"/></svg>Session 1 · Explain Open Items</div>
+          <div class="lesson">
+            <h3>An open item is a difference you can explain but haven't yet.</h3>
+            <p>This account is $5,450.00 off the bank. Both items are known: a check that hasn't cleared, and a fee the bank charged that nobody has booked. Click each item's status and choose the reason. Explaining both brings the difference to zero.</p>
+            <div class="todo">
+              <div id="todo-a"><span class="box">✓</span><span>Explain the outstanding check</span></div>
+              <div id="todo-b"><span class="box">✓</span><span>Explain the bank fee</span></div>
+            </div>
+            <div class="recorded">Session 1 complete · recorded toward Reconciliation Basics, 1 CPE</div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ Data: the same assistant, later stage ═══ -->
+  <section id="c-data" role="tabpanel" aria-labelledby="tab-data" class="concept" hidden>
+    <p class="lede">Open the questions. The last one needs a source that isn't connected, and the assistant says so instead of guessing.</p>
+    <div class="frame scene" id="scene3">
+      <div class="grid">
+        <div class="work">
+          <div class="shade"></div>
+          <div class="ex-head">
+            <h2>Unmatched Outgoing Wire</h2>
+            <span class="pill">Needs Review</span>
+            <div class="facts"><span>GHB-3122</span><span><strong class="num">$250,000.00</strong></span><span>Due Today</span></div>
+          </div>
+          <div class="steps">
+            <span class="done"><span class="dot">✓</span>Verify</span><span class="sep"></span>
+            <span class="now"><span class="dot">2</span>Request</span><span class="sep"></span>
+            <span><span class="dot">3</span>Post</span>
+          </div>
+          <div class="recon">
+            <div class="items">
+              <div class="item target" id="post3">
+                <span class="tip top">Booked 07/13, no bank line</span>
+                <span class="side"><span>Wire out · W-88412</span><small>GL 1010 · 07/13/26</small></span>
+                <span class="amt">$250,000.00</span>
+                <span class="how">No bank match</span>
+              </div>
+              <div class="item target" id="req3">
+                <span class="tip left">Sent 07/14, no reply</span>
+                <span class="side"><span>Request to Lee, Treasury Operations</span><small>07/14/26, 09:12</small></span>
+                <span class="amt"></span>
+                <span class="how">Waiting</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="panel" id="panel3">
+          <div class="panel-title"><svg class="sparkle" viewBox="0 0 16 16" aria-hidden="true"><path d="M6.2,3.6 Q7.44,8.56 12.4,9.8 Q7.44,11.04 6.2,16 Q4.96,11.04 0,9.8 Q4.96,8.56 6.2,3.6 Z"/><path d="M12.6,1 Q13.28,3.72 16,4.4 Q13.28,5.08 12.6,7.8 Q11.92,5.08 9.2,4.4 Q11.92,3.72 12.6,1 Z"/></svg>Assistant</div>
+
+          <div class="qa">
+            <button class="qh" aria-expanded="true" aria-controls="q-who">Who's it waiting on?</button>
+            <div class="qb" id="q-who">
+              <p class="a">Lee, Treasury Operations. The request went out 07/14 and hasn't been answered.</p>
+              <p class="from">Read: this record · <button data-where="req3" aria-pressed="false">Show me</button></p>
+            </div>
+          </div>
+
+          <div class="qa">
+            <button class="qh" aria-expanded="false" aria-controls="q-drove">Which entries drove this?</button>
+            <div class="qb" id="q-drove" hidden>
+              <p class="a">One posting: a $250,000.00 wire out on 07/13, reference W-88412, booked to 1010. The bank statement has no line for it yet.</p>
+              <p class="from">Read: this record · <button data-where="post3" aria-pressed="false">Show me</button>, and the ledger · <button data-show="led3" aria-pressed="false">2 rows</button></p>
+              <div class="article" id="led3" hidden>
+                <strong>Rows read</strong>
+                <span class="sec">GL 1010 · 07/13/26 · W-88412 · $250,000.00 Cr</span>
+                <span class="sec">Bank statement 07/13–07/15 · no match for W-88412</span>
+                <span>Under your permissions</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="qa">
+            <button class="qh" aria-expanded="false" aria-controls="q-auth">Was the wire itself authorized?</button>
+            <div class="qb" id="q-auth" hidden>
+              <p class="a">I can't tell from this exception or the ledger. The wire release log would answer that, and it isn't connected.</p>
+              <p class="from">Read: this record, the ledger. Not connected: <span class="off">wire release log</span></p>
+            </div>
+          </div>
+
+          <div class="ask-more"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Ask about this exception</div>
+          <div class="kept"><span>Kept on <strong>GHB-3122</strong> · <span id="kept-n">1 question</span> and its sources</span></div>
+        </aside>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  var narrow = window.matchMedia("(max-width: 860px)");
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function bring(el) { if (narrow.matches) el.scrollIntoView({ block: "center", behavior: "smooth" }); }
+
+  /* Example switch, kept in the link as #help, #learn or #data */
+  var tabs = { "help": document.getElementById("tab-help"), "learn": document.getElementById("tab-learn"), "data": document.getElementById("tab-data") };
+  var order = Object.keys(tabs);
+  function show(id) {
+    if (!tabs[id]) id = order[0];
+    order.forEach(function (k) {
+      tabs[k].setAttribute("aria-selected", String(k === id));
+      tabs[k].tabIndex = k === id ? 0 : -1;
+      document.getElementById("c-" + k).hidden = k !== id;
+    });
+  }
+  function go(k) { if (location.hash !== "#" + k) location.hash = k; else show(k); }
+  order.forEach(function (k, i) {
+    tabs[k].addEventListener("click", function () { go(k); });
+    tabs[k].addEventListener("keydown", function (e) {
+      if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+      var n = order[(i + (e.key === "ArrowRight" ? 1 : order.length - 1)) % order.length];
+      go(n); tabs[n].focus();
+    });
+  });
+  window.addEventListener("hashchange", function () { show(location.hash.slice(1)); });
+  show(location.hash.slice(1));
+
+  /* Demo helpers: a scripted cursor inside a scene */
+  function demo(scene, cursor) {
+    var timers = [];
+    return {
+      at: function (ms, fn) { timers.push(setTimeout(fn, reduce ? 0 : ms)); },
+      clear: function () { timers.forEach(clearTimeout); timers = []; },
+      start: function () { cursor.style.transition = "none"; cursor.style.transform = "translate(-40px,-40px)"; void cursor.offsetWidth; cursor.style.transition = ""; },
+      moveTo: function (el) {
+        var f = scene.getBoundingClientRect(), r = el.getBoundingClientRect();
+        cursor.style.transform = "translate(" + (r.left - f.left + r.width / 2 - 11) + "px," + (r.top - f.top + r.height / 2 - 11) + "px)";
+      },
+      tap: function () { cursor.classList.remove("tap"); void cursor.offsetWidth; cursor.classList.add("tap"); }
+    };
+  }
+
+  /* Shared: "Show me" links point at a target; other links open a card */
+  function pointer(scene, panel, onReset) {
+    function reset() {
+      scene.classList.remove("where");
+      panel.querySelectorAll("[data-where], .guide button").forEach(function (b) { b.setAttribute("aria-pressed", "false"); });
+      if (onReset) onReset();
+    }
+    function point(el) {
+      scene.querySelectorAll(".target").forEach(function (t) { t.classList.toggle("off", t !== el); });
+      scene.classList.add("where");
+    }
+    function where(btn, id) {
+      var on = btn.getAttribute("aria-pressed") !== "true";
+      reset();
+      if (!on) return;
+      var el = document.getElementById(id);
+      point(el); btn.setAttribute("aria-pressed", "true"); bring(el);
+    }
+    /* A short flash on the screen and in the panel, so a question opened from the screen is seen to open */
+    var flashTimer;
+    function flash(el, qaId) {
+      clearTimeout(flashTimer);
+      point(el);
+      var qa = document.getElementById(qaId).closest(".qa");
+      qa.classList.remove("lit"); void qa.offsetWidth; qa.classList.add("lit");
+      flashTimer = setTimeout(function () { scene.classList.remove("where"); qa.classList.remove("lit"); }, 1400);
+    }
+    panel.querySelectorAll("[data-where]").forEach(function (b) { b.addEventListener("click", function () { where(b, b.dataset.where); }); });
+    panel.querySelectorAll("[data-show]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var el = document.getElementById(b.dataset.show), open = b.getAttribute("aria-pressed") === "true";
+        el.hidden = open; b.setAttribute("aria-pressed", String(!open));
+      });
+    });
+    return { reset: reset, where: where, flash: flash };
+  }
+
+  /* Shared: questions, one open at a time */
+  function questions(panel, onOpen) {
+    var heads = panel.querySelectorAll(".qh");
+    var opened = {};
+    heads.forEach(function (h) { if (h.getAttribute("aria-expanded") === "true") opened[h.getAttribute("aria-controls")] = true; });
+    function set(h, on) { h.setAttribute("aria-expanded", String(on)); document.getElementById(h.getAttribute("aria-controls")).hidden = !on; }
+    function open(id) {
+      heads.forEach(function (h) {
+        var mine = h.getAttribute("aria-controls") === id;
+        set(h, mine);
+        if (mine) { opened[id] = true; bring(h); }
+      });
+      if (onOpen) onOpen(Object.keys(opened).length);
+    }
+    heads.forEach(function (h) {
+      h.addEventListener("click", function () {
+        var id = h.getAttribute("aria-controls");
+        if (h.getAttribute("aria-expanded") === "true") { set(h, false); if (onOpen) onOpen(Object.keys(opened).length); }
+        else open(id);
+      });
+    });
+    return { open: open };
+  }
+
+  /* ── Help: in Cadency ── */
+  var s1 = document.getElementById("scene1"), d1 = demo(s1, document.getElementById("cursor1"));
+  var where1 = document.getElementById("where1"), how1 = document.getElementById("how1");
+  var fee1 = document.getElementById("fee1"), certify1 = document.getElementById("certify1"), caption1 = document.getElementById("caption1"), diff1 = document.getElementById("diff1");
+  var p1 = pointer(s1, document.getElementById("panel1"), function () {
+    d1.clear();
+    s1.classList.remove("practice");
+    certify1.disabled = true;
+    fee1.classList.remove("explained"); fee1.querySelector(".how").textContent = "Unexplained";
+    diff1.textContent = "$1,250.00"; diff1.className = "diff";
+  });
+  var q1 = questions(document.getElementById("panel1"), function () { p1.reset(); });
+  where1.addEventListener("click", function () { p1.where(where1, "certify-wrap"); });
+  how1.addEventListener("click", function () {
+    if (how1.getAttribute("aria-pressed") === "true") { p1.reset(); return; }
+    p1.reset();
+    s1.classList.add("practice"); how1.setAttribute("aria-pressed", "true");
+    bring(s1.querySelector(".recon"));
+    d1.start();
+    caption1.textContent = "Explain the last open item";
+    d1.at(500, function () { d1.moveTo(fee1.querySelector(".how")); });
+    d1.at(1500, function () { d1.tap(); fee1.classList.add("explained"); fee1.querySelector(".how").textContent = "Adjustment to book"; diff1.textContent = "$0.00"; diff1.className = "zero"; certify1.disabled = false; });
+    d1.at(2600, function () { caption1.textContent = "Now certify as reviewer"; d1.moveTo(certify1); });
+    d1.at(3600, function () { d1.tap(); caption1.textContent = "Done. Nothing was certified on 1010."; });
+  });
+  s1.querySelector(".exit").addEventListener("click", p1.reset);
+  s1.querySelectorAll("[data-ask]").forEach(function (el) {
+    function ask() { if (s1.classList.contains("practice")) return; q1.open(el.dataset.ask); p1.flash(el.closest(".target"), el.dataset.ask); }
+    el.addEventListener("click", ask);
+    if (el.getAttribute("role") === "button") el.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); ask(); } });
+  });
+  document.getElementById("open-case").addEventListener("click", function () {
+    this.hidden = true; document.getElementById("case").hidden = false;
+  });
+  var caseText = document.getElementById("case-text"), editCase = document.getElementById("edit-case");
+  editCase.addEventListener("click", function () {
+    var on = editCase.getAttribute("aria-pressed") !== "true";
+    caseText.contentEditable = on ? "plaintext-only" : "false"; caseText.classList.toggle("editing", on);
+    editCase.setAttribute("aria-pressed", String(on)); editCase.textContent = on ? "Done" : "Edit";
+    if (on) caseText.focus();
+  });
+  document.getElementById("send-case").addEventListener("click", function () {
+    if (editCase.getAttribute("aria-pressed") === "true") editCase.click();
+    document.getElementById("case-actions").hidden = true; document.getElementById("case-sent").hidden = false;
+    document.getElementById("case-to").hidden = true;
+  });
+
+  /* ── Learn: in the Success Center ── */
+  /* The learner explains both items; the session completes only when both reasons are right */
+  var s2 = document.getElementById("scene2");
+  var door = document.getElementById("door"), session = document.getElementById("session"), caption2 = document.getElementById("caption2");
+  var lesson = {
+    a: { amount: 4200, right: "timing", how: "Timing difference", todo: "todo-a", wrong: "Not this one. The check will clear when the bank processes it, so nothing needs booking." },
+    b: { amount: 1250, right: "adjust", how: "Adjustment to book", todo: "todo-b", wrong: "Not this one. The bank already charged the fee, so it has to be booked." }
+  };
+  function money(n) { return "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function unexplained() {
+    var sum = 0;
+    session.querySelectorAll(".item:not(.explained) .how.pick").forEach(function (b) { sum += lesson[b.dataset.pick].amount; });
+    return sum;
+  }
+  function showDiff() { var d = document.getElementById("diff2"), n = unexplained(); d.textContent = money(n); d.className = n === 0 ? "zero" : "diff"; }
+  function reset2() {
+    s2.classList.remove("practice", "complete");
+    door.hidden = false; session.hidden = true;
+    ["item-a", "item-b"].forEach(function (id) { var it = document.getElementById(id); it.classList.remove("explained"); it.querySelector(".how").textContent = "Unexplained"; it.querySelector(".choices").hidden = true; });
+    ["todo-a", "todo-b"].forEach(function (id) { document.getElementById(id).classList.remove("done"); });
+    showDiff();
+    document.getElementById("s1").classList.remove("done"); document.querySelector("#s1 .len").textContent = "12 min";
+  }
+  document.getElementById("start2").addEventListener("click", function () {
+    reset2();
+    door.hidden = true; session.hidden = false; s2.classList.add("practice");
+    bring(session);
+    caption2.textContent = "Your turn: click a status and choose the reason";
+  });
+  session.querySelectorAll(".how.pick").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var it = b.closest(".item");
+      if (it.classList.contains("explained")) return;
+      var open = it.querySelector(".choices");
+      session.querySelectorAll(".choices").forEach(function (c) { c.hidden = c !== open ? true : !c.hidden; });
+    });
+  });
+  session.querySelectorAll("[data-choose]").forEach(function (c) {
+    c.addEventListener("click", function () {
+      var it = c.closest(".item"), key = it.querySelector(".how").dataset.pick, l = lesson[key];
+      if (c.dataset.choose !== l.right) { caption2.textContent = l.wrong; return; }
+      it.classList.add("explained"); it.querySelector(".how").textContent = l.how; it.querySelector(".choices").hidden = true;
+      document.getElementById(l.todo).classList.add("done");
+      showDiff();
+      var next = session.querySelector(".item:not(.explained) .how.pick");
+      if (next) { caption2.textContent = "Right. " + money(unexplained()) + " still unexplained."; next.focus(); return; }
+      caption2.textContent = "Difference explained. Session 1 complete.";
+      s2.classList.add("complete"); document.getElementById("s1").classList.add("done"); document.querySelector("#s1 .len").textContent = "Done";
+      var rec = session.querySelector(".recorded"); rec.tabIndex = -1; rec.focus();
+    });
+  });
+  s2.querySelector(".exit").addEventListener("click", function () { var done = s2.classList.contains("complete"); reset2(); if (done) { document.getElementById("s1").classList.add("done"); document.querySelector("#s1 .len").textContent = "Done"; } });
+
+  /* ── Data ── */
+  var s3 = document.getElementById("scene3");
+  var p3 = pointer(s3, document.getElementById("panel3"));
+  questions(document.getElementById("panel3"), function (n) {
+    p3.reset();
+    document.getElementById("kept-n").textContent = n + (n === 1 ? " question" : " questions");
+    document.getElementById("kept-n").nextSibling.textContent = n === 1 ? " and its sources" : " and their sources";
+  });
+
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") { p1.reset(); p3.reset(); if (!session.hidden) s2.querySelector(".exit").click(); } });
+})();
+</script>
+</body>
+</html>
