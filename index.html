@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Integrated Help in One Minute</title>
 <style>
-/* One-minute version of the Integrated Help walkthrough: five steps, the same live prototype. Arrow keys or click to move. Tokens follow the Trintech (AI Surge) design system. */
+/* One-minute version of the Integrated Help walkthrough: four steps, the same live prototype. Arrow keys or click to move. Tokens follow the Trintech (AI Surge) design system. */
 :root {
   --bg: #eef2f7;
   --surface: #ffffff;
@@ -209,11 +209,6 @@ button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 <main class="stage">
 
   <!-- Text slides -->
-  <div class="text" id="t-open" hidden>
-    <h2>An assistant on the screen you're on.</h2>
-    <p>It reads approved help content and the screen in front of the user. Nothing else. Every answer says which.</p>
-  </div>
-
   <div class="text" id="t-real" hidden>
     <h2>What to prove</h2>
     <ol>
@@ -479,13 +474,12 @@ button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 
   /* ── Steps ── */
   var steps = [
-    { title: "Integrated Help", text: "", show: "t-open", head: false },
     { title: "It knows the screen and your role", text: "The panel opens on the questions people ask here. Every answer says what it read.", show: "scene1", run: function () { p1.point("role-wrap"); document.querySelector('[data-show="art1"]').click(); } },
     { title: "Show Me Where", text: "The screen dims. The control stays lit.", show: "scene1", run: function () { where1.click(); } },
     { title: "Show Me How", text: "The steps run in a practice copy. Nothing is written.", show: "scene1", run: function () { runHow(); } },
     { title: "What to prove", text: "", show: "t-real", head: false }
   ];
-  var views = ["t-open", "t-real", "scene1"];
+  var views = ["t-real", "scene1"];
   var title = document.getElementById("step-title"), text = document.getElementById("step-text"), dots = document.getElementById("dots"), prev = document.getElementById("prev"), next = document.getElementById("next");
   steps.forEach(function () { dots.appendChild(document.createElement("i")); });
   var cur = -1;
